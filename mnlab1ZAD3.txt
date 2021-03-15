@@ -1,0 +1,38 @@
+#include <iostream>
+#include <math.h>
+using namespace std;
+
+int main() {
+	// P=(a+b)*h/2
+	float a, b, h, da, db, dh, dv;
+	cin >> a;
+	cin >> b;
+	cin >> h;
+	da = 0.1 * a;
+	db = 0.1 * b;
+	dh = 0.1 * h;
+	//metoda rozniczki 
+	dv = (h / 2) * da + (h / 2) * db + (a + b) / 2 * dh;
+	cout << "Pole trapezu wynosi " << (a + b) * h / 2 << " z gornym zakresem bledu wynoszacym " << dv << endl;
+
+	//METODA przedziałow
+	float dv1;
+	dv = ((a - da) + (b - da)) * (h - dh) / 2;
+	dv1 = ((a + da) + (b + da)) * (h + dh) / 2;
+	cout << "pole trapezu miesci sie w granicach [ " << dv << " ; " << dv1 << "]" << endl;
+
+	///zad odwrotne n=3; epsilon to chyba dv 
+	float e, xa, xb, xh;
+	cin >> e;
+	xa = e / (3 * (h / 2));
+	xb = e / (3 * (h / 2));
+	xh = e / (3 * (a + b) / 2);
+	cout << " da < " << xa << endl;
+	cout << " db < " << xb << endl;
+	cout << " dh < " << xh << endl;
+
+
+
+
+
+	}

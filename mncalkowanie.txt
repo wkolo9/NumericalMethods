@@ -1,0 +1,225 @@
+METODY NUMERYCZNE LAB.5, 07.04.2020, godzina 12:15 – 13:45
+GRUPA nr 1, SEKCJA nr 2
+Kamil Woźniak	          	Wojciech Kołodziej
+Temat: Całkowanie numeryczne.
+#include <stdio.h>
+#include <iostream>
+#include <math.h>
+ 
+using namespace std;
+ 
+int main()
+{
+   	double a, b, h, n, x, f;
+   	double w_t, w_kt, w_S; //wyniki dla t - trapez, S - Simpson, k - kwadratura złożona
+   	double reszta_t, reszta_t_dokl, reszta_kt, reszta_kt_dokl,  reszta_S, reszta_S_dokl, reszta_kS, reszta_kS_dokl, w_kS, w_dokladny;
+ 
+   	cout << "Podaj dolna granice calkowania (a): ";
+   	cin >> a;
+   	cout << "Podaj gorna granice calkowania (b): ";
+   	cin >> b;
+   	cout << "Podaj liczbe podprzedzialow (n), na ktore dzieli sie przedial calkowania: "; //im wieksze n tym lepsza dokladnosc wyniku z zadania drugiego
+   	cin >> n;
+   	w_dokladny = exp(b) - exp(a);
+ 
+   	cout << "Dokladna wartosc calki oznaczonej z funkcji e^x dla granic calkowania " << a << " i " << b << " wynosi: " << w_dokladny << endl << endl;
+   	cout << "                           	zad1" << endl;
+ //zad1
+   	//METODA TRAPEZOW
+   	w_t = (exp(a) + exp(b)) * (b - a) / 2.0; //zakladamy ze n=1 we wzorze trapezów
+   	reszta_t = -1.0 / 12.0 * pow((b - a), 3) * exp(1.5); //<-1.5 to dowolna liczba z przedzialu otwartego od a do b. Dla a=1 i b=2 wybraliśmy 1.5
+   	reszta_t_dokl = w_dokladny - w_t;
+   	cout << "Wartosc calki oznaczonej policzonej metoda trapezow: " << w_t << endl;
+   	cout << "Reszta z metody trapezow policzona wzorem: " << reszta_t << "" << endl << "Dokladna reszta: " << reszta_t_dokl << "" << endl << endl;
+ 
+   	// METODA SIMPSONA
+   	w_S = (exp(a) + 4 * exp((b + a) / 2.0) + exp(b)) * (b - a) / 6.0; //zakladamy ze n=2 we wzorze Simpsona
+   	reszta_S = -1.0 / 90.0 * pow((b - a)/2, 5) * exp(1.5); //<-1.5 to dowolna liczba z przedzialu otwartego od a do b. Dla a=1 i b=2 wybraliśmy 1.5
+   	reszta_S_dokl =  w_dokladny- w_S;
+   	cout << "Wartosc calki oznaczonej policzonej metoda Simpsona: " << w_S << endl;
+   	cout << "Reszta z metody Simpsona policzona wzorem: " << reszta_S << "" << endl << "Dokladna reszta: " << reszta_S_dokl << "" << endl << endl << endl;
+ 
+   	cout << "                           	zad2" << endl;
+ //zad2
+   	//Kwadratura zlozona trapezów
+   	h = (b - a) / n;
+   	f = exp(a);     	//pierwszy i ostatni skladnik sumy nie ma wspolczynnika 2
+   	x = a; //x0 - dolna granica calkowania, kazdy kolejny x jest rownoodlegly o h (wzor: x=a+(i*h))
+   	for (int i = 0; i < n - 1; i++)
+   	{
+         	x += h;         	
+         	f += 2 * exp(x);
+   	}
+   	f += exp(b);
+   	w_kt = (b - a) / (2 * n) * f;
+   	reszta_kt = -1.0 / 12.0 * n * pow(h, 3) * exp(b); //<- tym razem liczba w eksponencie nalezy do przedzialu domknietego [a;b]
+   	reszta_kt_dokl = w_dokladny - w_kt;
+   	cout << "Wartosc calki oznaczonej policzonej z zastosowaniem kwadratury zlozonej trapezow: " << w_kt << endl;
+   	cout << "Reszta z kwadratury zlozonej trapezow policzona wzorem: " << reszta_kt << "" << endl << "Dokladna reszta: " << reszta_kt_dokl << "" << endl << endl;
+ 
+   	//Kwadratura zlozona Simpsona
+   	h = (b - a) / (2 * n);
+   	f = exp(a);	//pierwszy i ostatni skladnik sumy nie ma wspolczynnika 2
+   	x = a;   //x0 - dolna granica calkowania, kazdy kolejny x jest rownoodlegly o h (wzor: x=a+(i*h))
+   	for (int i = 0; i < 2 * n - 1; i++)
+   	{
+         	x += h;
+         	if (i % 2 == 1)
+                	f += 2 * exp(x);
+         	else                          	//wspolczynnik przy skladnikach sumy jest rowny odpowednio 4, 2, 4, 2,...
+                	f += 4 * exp(x);
+   	}
+   	f += exp(b);
+   	w_kS = h / 3 * f;
+   	reszta_kS = -1.0 / 90.0 * n * pow(h, 5) * exp(b); //<- tym razem liczba w eksponencie nalezy do przedzialu domknietego [a;b]
+   	reszta_kS_dokl= w_dokladny - w_kS;
+ 
+   	cout << "Wartosc calki oznaczonej policzonej z zastosowaniem kwadratury zlozonej Simpsona: " << w_kS << endl;
+   	cout << "Reszta z kwadratury zlozonej Simpsona policzona wzorem: " << reszta_kS << "" << endl << "Dokladna reszta: " << reszta_kS_dokl << "" << endl;
+ 
+   	system("pause");
+   	return 0;
+}
+ KOD PRZEROBIONY NA C
+
+#include <stdio.h>
+#include <iostream>
+#include <math.h>
+#include <stdlib.h>
+
+
+int main()
+{
+	double a, b, h, n, x, f;
+	double w_t, w_kt, w_S; //wyniki dla t - trapez, S - Simpson, k - kwadratura złożona
+	double reszta_t, reszta_t_dokl, reszta_kt, reszta_kt_dokl, reszta_S, reszta_S_dokl, reszta_kS, reszta_kS_dokl, w_kS, w_dokladny;
+
+	printf( "Podaj dolna granice calkowania (a): ");
+	scanf("%lf", &a);
+	printf("Podaj gorna granice calkowania (b): ");
+	scanf("%lf", &b);
+	printf("Podaj liczbe podprzedzialow (n), na ktore dzieli sie przedial calkowania: "); //im wieksze n tym lepsza dokladnosc wyniku z zadania drugiego
+	scanf("%lf", &n);
+	w_dokladny = exp(b) - exp(a);
+	printf("Dokladna wartosc calki oznaczonej z funkcji e^x dla granic calkowania %lf ", a);
+	printf(" i %lf ", b);
+	printf("wynosi: %lf \n", w_dokladny);
+	printf(" i %lf \n");
+	//zad1
+	   //METODA TRAPEZOW
+	w_t = (exp(a) + exp(b)) * (b - a) / 2.0; //zakladamy ze n=1 we wzorze trapezów
+	reszta_t = -1.0 / 12.0 * pow((b - a), 3) * exp(1.5); //<-1.5 to dowolna liczba z przedzialu otwartego od a do b. Dla a=1 i b=2 wybraliśmy 1.5
+	reszta_t_dokl = w_dokladny - w_t;
+	printf("Wartosc calki oznaczonej policzonej metoda trapezow: %lf \n", w_t);
+	printf("Reszta z metody trapezow policzona wzorem: %lf \n ", reszta_t);
+	printf("Dokladna reszta: %lf \n", reszta_t_dokl);
+
+	// METODA SIMPSONA
+	w_S = (exp(a) + 4 * exp((b + a) / 2.0) + exp(b)) * (b - a) / 6.0; //zakladamy ze n=2 we wzorze Simpsona
+	reszta_S = -1.0 / 90.0 * pow((b - a) / 2, 5) * exp(1.5); //<-1.5 to dowolna liczba z przedzialu otwartego od a do b. Dla a=1 i b=2 wybraliśmy 1.5
+	reszta_S_dokl = w_dokladny - w_S;
+	printf("Wartosc calki oznaczonej policzonej metoda Simpsona: %lf \n", w_S);
+	printf("Reszta z metody Simpsona policzona wzorem: %lf \n", reszta_S);
+		printf("Dokladna reszta: %lf \n", reszta_S_dokl);
+		printf("\n");
+		printf("\n");
+		printf("\n");
+
+		printf("Zadanie 2 \n");
+	//zad2
+	   //Kwadratura zlozona trapezów
+	h = (b - a) / n;
+	f = exp(a);     	//pierwszy i ostatni skladnik sumy nie ma wspolczynnika 2
+	x = a; //x0 - dolna granica calkowania, kazdy kolejny x jest rownoodlegly o h (wzor: x=a+(i*h))
+	for (int i = 0; i < n - 1; i++)
+	{
+		x += h;
+		f += 2 * exp(x);
+	}
+	f += exp(b);
+	w_kt = (b - a) / (2 * n) * f;
+	reszta_kt = -1.0 / 12.0 * n * pow(h, 3) * exp(b); //<- tym razem liczba w eksponencie nalezy do przedzialu domknietego [a;b]
+	reszta_kt_dokl = w_dokladny - w_kt;
+	printf("Wartosc calki oznaczonej policzonej z zastosowaniem kwadratury zlozonej trapezow: %lf \n" , w_kt );
+	printf("Reszta z kwadratury zlozonej trapezow policzona wzorem: %lf \n", reszta_kt);
+		printf("Dokladna reszta: %lf \n", reszta_kt_dokl );
+		printf("\n");
+		printf("\n");
+
+	//Kwadratura zlozona Simpsona
+	h = (b - a) / (2 * n);
+	f = exp(a);	//pierwszy i ostatni skladnik sumy nie ma wspolczynnika 2
+	x = a;   //x0 - dolna granica calkowania, kazdy kolejny x jest rownoodlegly o h (wzor: x=a+(i*h))
+	for (int i = 0; i < 2 * n - 1; i++)
+	{
+		x += h;
+		if (i % 2 == 1)
+			f += 2 * exp(x);
+		else                          	//wspolczynnik przy skladnikach sumy jest rowny odpowednio 4, 2, 4, 2,...
+			f += 4 * exp(x);
+	}
+	f += exp(b);
+	w_kS = h / 3 * f;
+	reszta_kS = -1.0 / 90.0 * n * pow(h, 5) * exp(b); //<- tym razem liczba w eksponencie nalezy do przedzialu domknietego [a;b]
+	reszta_kS_dokl = w_dokladny - w_kS;
+
+	printf("Wartosc calki oznaczonej policzonej z zastosowaniem kwadratury zlozonej Simpsona: %lf \n", w_kS);
+	printf("Reszta z kwadratury zlozonej Simpsona policzona wzorem: %lf \n", reszta_kS);
+		printf("Dokladna reszta: %lf \n ", reszta_kS_dokl);
+
+	system("pause");
+	return 0;
+}
+
+
+
+
+Dane wejściowe: Całka od 1 do 2 z e^x, n=1
+Wyjście z programu:
+Podaj dolna granice calkowania (a): 1
+Podaj gorna granice calkowania (b): 2
+Podaj liczbe podprzedzialow (n), na ktore dzieli sie przedial calkowania: 1
+Zadanie 1
+Dokladna wartosc calki oznaczonej z funkcji e^x dla granic calkowania 1.000000  i 2.000000 wynosi: 4.670774
+ i 4.670774
+Wartosc calki oznaczonej policzonej metoda trapezow: 5.053669
+Reszta z metody trapezow policzona wzorem: -0.373474
+ Dokladna reszta: -0.382895
+Wartosc calki oznaczonej policzonej metoda Simpsona: 4.672349
+Reszta z metody Simpsona policzona wzorem: -0.001556
+Dokladna reszta: -0.001575
+Zadanie 2
+Wartosc calki oznaczonej policzonej z zastosowaniem kwadratury zlozonej trapezow: 5.053669
+Reszta z kwadratury zlozonej trapezow policzona wzorem: -0.615755
+Dokladna reszta: -0.382895
+Wartosc calki oznaczonej policzonej z zastosowaniem kwadratury zlozonej Simpsona: 4.672349
+Reszta z kwadratury zlozonej Simpsona policzona wzorem: -0.002566
+Dokladna reszta: -0.001575
+
+Dane wejściowe: Całka od 1 do 2 z e^x, n=10
+Wyjście z programu:
+Podaj dolna granice calkowania (a): 1
+Podaj gorna granice calkowania (b): 2
+Podaj liczbe podprzedzialow (n), na ktore dzieli sie przedial calkowania: 10
+Zadanie 1
+Dokladna wartosc calki oznaczonej z funkcji e^x dla granic calkowania 1.000000  i 2.000000 wynosi: 4.670774
+ i 4.670774
+Wartosc calki oznaczonej policzonej metoda trapezow: 5.053669
+Reszta z metody trapezow policzona wzorem: -0.373474
+ Dokladna reszta: -0.382895
+Wartosc calki oznaczonej policzonej metoda Simpsona: 4.672349
+Reszta z metody Simpsona policzona wzorem: -0.001556
+Dokladna reszta: -0.001575
+
+Zadanie 2
+Wartosc calki oznaczonej policzonej z zastosowaniem kwadratury zlozonej trapezow: 4.674666
+Reszta z kwadratury zlozonej trapezow policzona wzorem: -0.006158
+Dokladna reszta: -0.003892
+
+Wartosc calki oznaczonej policzonej z zastosowaniem kwadratury zlozonej Simpsona: 4.670774
+Reszta z kwadratury zlozonej Simpsona policzona wzorem: -0.000000
+Dokladna reszta: -0.000000
+
+
+Wnioski:
+Zwiększenie liczby podprzedziałow n na które dzieli się przedział całkowania prowadzi do osiągnięcia dokładniejszego (lepszego) wyniku w zadaniu drugim. Otrzymany wynik 4.670774 zgadza się z wynikiem otrzymanym drogą analityczną.
